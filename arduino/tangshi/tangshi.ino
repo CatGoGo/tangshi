@@ -11,46 +11,28 @@ const unsigned long HTTP_TIMEOUT = 5000;
 int buttonState = 0;
 String response;
 int button_pin = D4;//触发按钮
-
 char const *ap_name = "TangshiAP";//ap name
-
-boolean debug_mode = true;//debug?
+boolean debug_mode = false;//debug?
 String debug_wifi_name = "chinaunion";
 String debug_wifi_pass = "chinaunion";
+//由于tts语音模块需要ansi编码。故，每次串口输出都需经过转码。可用python3的.encode("gbk")来实现
 
-
-//由于tts语音模块需要ansi编码。故，每次串口输出都需经过转码。可用python3的.encode("ansi")来实现
-
-void ap() {
-  wifiManager.autoConnect(ap_name);
-}
-
-void debug() {
-  WiFi.mode(WIFI_STA);
-  WiFi.begin(debug_wifi_name, debug_wifi_pass);
-  WiFi.setAutoConnect(true);
-}
-
-void conn() {
+void setup() {
+  //  Serial.swap();//调用映射方法GPIO1(TX),GPIO3(RX)   不调用，同样可用，因为是 TX0/RX0。调用后，arduino监控台无输出。
+  pinMode(button_pin, INPUT_PULLUP);
   if (debug_mode) {
-    debug();
+    WiFi.mode(WIFI_STA);
+    WiFi.begin(debug_wifi_name, debug_wifi_pass);
+    WiFi.setAutoConnect(true);
   } else {
-    ap();
+    wifiManager.autoConnect(ap_name);
   }
   while (WiFi.status() != WL_CONNECTED) {
     delay(1000);
   }
-}
-
-
-void setup() {
-
-  //  Serial.swap();//调用映射方法GPIO1(TX),GPIO3(RX)   不调用，同样可用，因为是 TX0/RX0。调用后，arduino监控台无输出。
-  pinMode(button_pin, INPUT_PULLUP);
-  conn();
   Serial.begin(9600);
   Serial.println("\xcd\xf8\xc2\xe7\xc1\xac\xbd\xd3\xb3\xc9\xb9\xa6");//网络连接成功
-  http.begin("http://192.168.137.1:5000/text/ansi");
+  http.begin("http://106.12.133.66:5000/text/gbk");
   http.setTimeout(HTTP_TIMEOUT);
   http.setUserAgent("esp8266");//用户代理版本
   //  http.setAuthorization("esp8266","123456");//用户校验信息

@@ -35,8 +35,12 @@ def tojson():
     out = jsondatar[1:len(jsondatar)-1]
     return out
 @app.route('/text/ansi')
-def gb2312():
+def ansi():
+    # linux的python竟然没有ansi编码。
     return text().encode("ansi")
+@app.route('/text/gbk')
+def gbk():
+    return text().encode("gbk")
 @app.route('/text/utf8')
 def utf8():
     return text()
